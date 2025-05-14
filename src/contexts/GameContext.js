@@ -47,21 +47,6 @@ export const GameProvider = ({ children }) => {
   
   
   
-  const validateCard = (card) => {
-    
-  };
- 
-  const generateCard = () => {
-    
-  };
-
- 
-  
-  const submitSolution = (equation) => {
-    
-  };
-  
-  
   return (
     <GameContext.Provider value={{
       player,

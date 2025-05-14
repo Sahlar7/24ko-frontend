@@ -32,7 +32,6 @@ const GamePage = () => {
     return Math.max(Math.floor(40 * decay), 5);
   }
 
-
   
   const submitSolution = () => {
     if (!inputValue.trim()) {
@@ -135,6 +134,7 @@ const GamePage = () => {
                 <div className="flex gap-2 mb-4">
                   <input
                     type="text"
+                    disabled = {player.isAlive === false}
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={handleKeyDown}
@@ -142,6 +142,7 @@ const GamePage = () => {
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                   <button 
+                    disabled = {!inputValue.trim() || player.isAlive === false}
                     onClick={submitSolution}
                     className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors shadow-sm"
                   >
@@ -165,6 +166,7 @@ const GamePage = () => {
                 {['+', '-', '×', '÷', '(', ')', '*', '/'].map((op, index) => (
                   <button
                     key={index}
+                    disabled = {player.isAlive === false}
                     onClick={() => setInputValue(prev => prev + (op === '×' ? '*' : op === '÷' ? '/' : op))}
                     className="w-10 h-10 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-md text-lg font-medium transition-colors"
                   >
