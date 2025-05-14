@@ -2,59 +2,50 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
 
-const socket = io(process.env.SERVER_URL, {
+
+const GameContext = createContext();
+const socket = io(process.env.REACT_APP_SERVER_URL, {
     transports: ['websocket', 'polling'],
     withCredentials: true,
   });
-  
-
-const GameContext = createContext();
 
 export const useGame = () => useContext(GameContext);
 
 export const GameProvider = ({ children }) => {
-  const [player, setPlayer] = useState(null);
-  const [lobby, setLobby] = useState(null);
-  const [card, setCard] = useState(null);
-  
-  const [gameResults, setGameResults] = useState({
-    winner: null,
-    playerStats: []
-  });
+
+      
+    socket.on('connect', () => {
+        console.log('Connected to server:', socket.id);
+    });
+    socket.on('disconnect', () => {
+        console.log('Disconnected from server:', socket.id);
+    });
+    socket.on('connect_error', (error) => {
+        console.error('Connection error:', error);
+    });    
+
+    const [player, setPlayer] = useState(null);
+    const [lobby, setLobby] = useState(null); 
 
 
   useEffect(() => {
-    socket.on('lobbyJoined', (lobby, player) => {
-      setLobby(lobby);
-      setPlayer(player);
-    });
-    
     socket.on('updateLobby', (lobby) => {
         setLobby(lobby);
+        console.log('Lobby updated:', lobby);
     });
 
     socket.on('updatePlayer', (player) => {
         setPlayer(player);
+        console.log('Player updated:', player);
     });
-
-    
-
     
     return () => {
-      socket.off('lobbyJoined');
       socket.off('updateLobby');
       socket.off('updatePlayer');
     };
   });
   
-  const createLobby = (name) => {
-    const lobbyId = Math.random().toString(36).substring(2, 9);
-    socket.emit('createLobby', lobbyId, name);
-  };
   
-  const joinLobby = (lobbyId, name) => {
-    socket.emit('joinLobby', lobbyId, name);
-  };
   
   const validateCard = (card) => {
     
@@ -77,9 +68,7 @@ export const GameProvider = ({ children }) => {
       setPlayer,
       lobby,
       setLobby,
-      createLobby,
-      joinLobby,
-      submitSolution,
+      socket
     }}>
       {children}
     </GameContext.Provider>
