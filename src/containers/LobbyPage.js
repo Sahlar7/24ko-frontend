@@ -6,16 +6,36 @@ import Notification from '../components/notification';
 const LobbyPage = () => {
   const { socket, player, lobby, setPlayer, setLobby } = useGame();
   const [message, setMessage] = useState("");
+  const [countdown, setCountdown] = useState(null);
 
   useEffect(() =>{
     socket.on('playerExited', (message) => {
       setMessage(message);
     });
 
+    socket.on('startGame', () => {
+      setCountdown(3);
+    });
+
     return () => {
       socket.off('playerExited');
+      socket.off('startGame');
     };
   });
+
+  useEffect(() =>{
+    if (countdown > 0) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+    else if (countdown === 0) {
+      socket.emit('countdownFinished', lobby.id);
+      setCountdown(null);
+    }
+  }, [countdown]);
 
 
   const exitLobby = () => {
@@ -47,6 +67,13 @@ const LobbyPage = () => {
         
         {/* Player List */}
         <PlayerList player={player} lobby={lobby} />
+
+         {/* Countdown */}
+         {countdown > 0 && (
+          <div className="text-center text-lg font-bold text-red-600 mt-4">
+            Game starting in {countdown}...
+          </div>
+        )}
 
         {/* Game Controls */}
         <div className="flex justify-between items-center">

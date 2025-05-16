@@ -1,5 +1,5 @@
 import React from 'react';
-import { User } from 'lucide-react';
+import { User, Crown } from 'lucide-react';
 const PlayerList = ({player, lobby}) => {
     return(
         <div className="mb-8">

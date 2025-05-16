@@ -4,13 +4,20 @@ import { useGame } from '../contexts/GameContext';
 import { Trophy, Medal, Star, ArrowRight, Heart, Zap, User } from 'lucide-react';
 
 const ResultsPage = () => {
-  const { player, lobby, socket } = useGame();
+  const { setLobby, setPlayer, player, lobby, socket } = useGame();
   const sortedPlayers = lobby.players.sort((a, b) => a.rank - b.rank);
   const winner = sortedPlayers[0];
   
-  const playAgain = () => {
-    //Play again logic
+  const backToLobby = () => {
+    socket.emit('backToLobby');
   }
+
+  const backToHome = () =>{
+    setLobby(null);
+    setPlayer(null);
+    socket.emit('exitLobby');
+  }
+
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -84,10 +91,16 @@ const ResultsPage = () => {
         {/* Action Buttons */}
         <div className="flex justify-center gap-4">
           <button
-            onClick={playAgain}
+            onClick={backToLobby}
             className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-colors shadow-sm flex items-center gap-2"
           >
             Play Again <ArrowRight size={16} />
+          </button>
+          <button
+            onClick={backToHome}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors shadow-sm flex items-center gap-2"
+          >
+            Back to Home <ArrowRight size={16} />
           </button>
         </div>
       </div>

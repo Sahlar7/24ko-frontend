@@ -1,7 +1,7 @@
 // src/containers/GamePage.js
 import React, { useState, useEffect } from 'react';
 import { useGame } from '../contexts/GameContext';
-import { Shield, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import PlayersStatus from '../components/playersStatus';
 
 const GamePage = () => {
@@ -10,9 +10,20 @@ const GamePage = () => {
   const [inputValue, setInputValue] = useState('');
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState(''); // 'success', 'error', or ''
-  const [currentCard, setCurrentCard] = useState([3, 5, 7, 9]);
+  const [currentCard, setCurrentCard] = useState(generateCard());
   const [elapsedTime, setElapsedTime] = useState(0);
   const [timerInterval, setTimerInterval] = useState(null);
+  const [countdown, setCountdown] = useState(3);
+
+  useEffect(() => {
+    if (countdown >= 0) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+      
+      return () => clearInterval(timer);
+    }
+  })
   
 
 
@@ -27,8 +38,114 @@ const GamePage = () => {
     return () => clearInterval(interval); 
   }, [currentCard]);
 
+  function validateCard(card) {
+    const permutations = getAllPermutations(card);
+    
+    const operators = ['+', '-', '*', '/'];
+    
+    for (const perm of permutations) {
+      for (const op1 of operators) {
+        for (const op2 of operators) {
+          for (const op3 of operators) {
+            
+            // Case 1: ((a op1 b) op2 c) op3 d
+            const val1 = applyOp(applyOp(applyOp(perm[0], op1, perm[1]), op2, perm[2]), op3, perm[3]);
+            if (Math.abs(val1 - 24) < 0.0001) {
+              console.log(`Found a valid combination: ${perm[0]} ${op1} ${perm[1]} ${op2} ${perm[2]} ${op3} ${perm[3]}`);
+              return true;
+            }
+            
+            // Case 2: (a op1 b) op2 (c op3 d)
+            const val2 = applyOp(applyOp(perm[0], op1, perm[1]), op2, applyOp(perm[2], op3, perm[3]));
+            if (Math.abs(val2 - 24) < 0.0001) {
+              console.log(`Found a valid combination: ${perm[0]} ${op1} ${perm[1]} ${op2} ${perm[2]} ${op3} ${perm[3]}`);
+              return true;
+            }
+            
+            // Case 3: a op1 ((b op2 c) op3 d)
+            const val3 = applyOp(perm[0], op1, applyOp(applyOp(perm[1], op2, perm[2]), op3, perm[3]));
+            if (Math.abs(val3 - 24) < 0.0001) {
+              console.log(`Found a valid combination: ${perm[0]} ${op1} ${perm[1]} ${op2} ${perm[2]} ${op3} ${perm[3]}`);
+              return true;
+            }
+            
+            // Case 4: a op1 (b op2 (c op3 d))
+            const val4 = applyOp(perm[0], op1, applyOp(perm[1], op2, applyOp(perm[2], op3, perm[3])));
+            if (Math.abs(val4 - 24) < 0.0001) {
+              console.log(`Found a valid combination: ${perm[0]} ${op1} ${perm[1]} ${op2} ${perm[2]} ${op3} ${perm[3]}`);
+              return true;
+            }
+              
+            
+            // Case 5: (a op1 (b op2 c)) op3 d
+            const val5 = applyOp(applyOp(perm[0], op1, applyOp(perm[1], op2, perm[2])), op3, perm[3]);
+            if (Math.abs(val5 - 24) < 0.0001) {
+              console.log(`Found a valid combination: ${perm[0]} ${op1} ${perm[1]} ${op2} ${perm[2]} ${op3} ${perm[3]}`);
+              return true;
+            }
+          }
+        }
+      }
+    }
+    
+    return false;
+  }
+
+  function applyOp(a, op, b) {
+    switch (op) {
+      case '+': return a + b;
+      case '-': return a - b;
+      case '*': return a * b;
+      case '/': return b !== 0 ? a / b : NaN;
+      default: return NaN;
+    }
+}
+
+function getAllPermutations(arr) {
+  const result = [];
+  
+  function permute(arr, m = []) {
+    if (arr.length === 0) {
+      result.push(m);
+    } else {
+      for (let i = 0; i < arr.length; i++) {
+        const current = arr.slice();
+        const next = current.splice(i, 1);
+        permute(current, m.concat(next));
+      }
+    }
+  }
+  
+  permute(arr);
+  return result;
+}
+  function generateCard() {
+    let tries = 0;
+    const defaultCards = [
+      [3, 5, 7, 9],
+      [1, 2, 3, 4],
+      [5, 6, 7, 8],
+      [2, 4, 6, 8],
+      [1, 3, 5, 7],
+    ]
+    while (tries < 100) {
+      const newCard = [];
+      for (let i = 0; i < 4; i++) {
+        const randomNum = Math.floor(Math.random() * 15) + 1;
+        newCard.push(randomNum);
+      }
+      if (validateCard(newCard)) {
+        return newCard;
+      }
+      tries++;
+    }
+    // If no valid card is found, fallback to a default card
+    const randomIndex = Math.floor(Math.random() * defaultCards.length);
+    return defaultCards[randomIndex];
+  }
+
   const calculateDamage = (time) => {
-    const decay = Math.exp(-time/10);
+    const decay = Math.exp(-0.2 * time/10);
     return Math.max(Math.floor(40 * decay), 5);
   }
 
@@ -70,7 +187,7 @@ const GamePage = () => {
         setMessage('Correct! You solved it!');
         setMessageType('success');
         const damage = calculateDamage(elapsedTime);
-        setCurrentCard([3, 5, 7, 9]);
+        setCurrentCard(generateCard());
         socket.emit('playerSolved', lobby.id, damage);
 
         // Clear success message after 1.5 seconds
@@ -99,10 +216,29 @@ const GamePage = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
       <div className="w-full max-w-3xl">
+      {countdown > -1 ? (
+      <>
+      {/* Countdown */}
+        {countdown > 0 && (
+          <div className="text-center text-lg font-bold text-red-600 mt-4">
+            {countdown}
+          </div>
+        )}
+        {countdown === 0 && (
+          <div className="text-center text-lg font-bold text-green-600 mt-4">
+            Game Start!
+          </div>
+        )}
+      </>
+    ) :(
+      <>
+    
         {/* Game Header */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-purple-800">24KO</h1>
         </div>
+
+        
         
         {/* Game Arena */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -184,6 +320,8 @@ const GamePage = () => {
             </div>
           </div>
         </div>
+        </>
+        )}
       </div>
     </div>
   );
