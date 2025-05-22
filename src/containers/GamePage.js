@@ -15,7 +15,6 @@ const GamePage = () => {
   const [timerInterval, setTimerInterval] = useState(null);
   const [countdown, setCountdown] = useState(3);
   const [gameOver, setGameOver] = useState(false);
-  const [gameFinished, setGameFinished] = useState(false);
 
   useEffect(() => {
     if (countdown >= 0) {
