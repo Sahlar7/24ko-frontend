@@ -1,3 +1,40 @@
+# 24KO-Frontend
+
+A multiplayer spin on the classic math game, 24! Play with your friends and try to survive as you combine numbers to make 24.
+
+## Local Setup
+
+1. **Clone the repository**
+   ```
+   git clone https://github.com/Sahlar7/24ko-frontend.git
+   cd 24ko-frontend
+   ```
+2. **Install dependencies**
+   ```
+   npm install
+   ```
+3. **Configure the backend URL**  
+Create a `.env` file in the root of this project and add:
+```
+REACT_APP_SERVER_URL=http://localhost:3001
+```
+
+Make sure this matches the URL and port your backend is running on.
+
+4. **Start the frontend**
+```
+npm start
+```
+
+The app will open at [http://localhost:3000](http://localhost:3000) by default. Make sure your backend environment variables has this set for the frontend url.
+
+5. **Play with friends**  
+Open multiple browser windows or tabs and join the same lobby code to play together locally!
+
+---
+
+The rest of this README contains the default Create React App documentation.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
@@ -64,7 +101,3 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/a
 ### Deployment
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
