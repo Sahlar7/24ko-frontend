@@ -155,10 +155,10 @@ function getAllPermutations(arr) {
     return defaultCards[randomIndex];
   }
 
-  const calculateDamage = (time) => {
+  /*const calculateDamage = (time) => {
     const decay = Math.exp(-0.2 * time/10);
     return Math.max(Math.floor(40 * decay), 5);
-  }
+  }*/
 
   
   const submitSolution = () => {
@@ -197,9 +197,9 @@ function getAllPermutations(arr) {
         setInputValue('');
         setMessage('Correct! You solved it!');
         setMessageType('success');
-        const damage = calculateDamage(elapsedTime);
+        //const damage = calculateDamage(elapsedTime);
         setCurrentCard(generateCard());
-        socket.emit('playerSolved', lobby.id, damage);
+        socket.emit('playerSolved', lobby.id, 20);
 
         // Clear success message after 1.5 seconds
         setTimeout(() => {
