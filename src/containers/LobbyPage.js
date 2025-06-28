@@ -2,15 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { useGame } from '../contexts/GameContext';
 import PlayerList from '../components/playerList';
 import Notification from '../components/notification';
+import { toast } from 'react-toastify';
 
 const LobbyPage = () => {
   const { socket, player, lobby, setPlayer, setLobby } = useGame();
   const [message, setMessage] = useState("");
   const [countdown, setCountdown] = useState(null);
 
-  useEffect(() =>{
+  useEffect(() => {
     socket.on('playerExited', (message) => {
-      setMessage(message);
+      toast.info(message, {
+        position: "top-center",
+        autoClose: 2500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
     });
 
     socket.on('startGame', () => {
@@ -23,7 +33,7 @@ const LobbyPage = () => {
     };
   });
 
-  useEffect(() =>{
+  useEffect(() => {
     if (countdown > 0) {
       const timer = setInterval(() => {
         setCountdown((prev) => prev - 1);
@@ -48,12 +58,12 @@ const LobbyPage = () => {
     socket.emit('playerReady', lobby.id);
   };
 
-  
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
       <div className="w-full max-w-lg bg-white rounded-xl shadow-lg p-8">
         <h1 className="text-2xl font-bold text-center text-purple-800 mb-2">Game Lobby</h1>
-        
+
         {/* Lobby Code */}
         <div className="flex justify-center items-center gap-2 mb-6">
           <div className="bg-gray-100 px-4 py-2 rounded text-lg font-mono">
@@ -62,14 +72,14 @@ const LobbyPage = () => {
         </div>
         {/* Notification Message */}
         {message && (
-        <Notification message={message} setMessage={setMessage} />
-      )}
-        
+          <Notification message={message} setMessage={setMessage} />
+        )}
+
         {/* Player List */}
         <PlayerList player={player} lobby={lobby} />
 
-         {/* Countdown */}
-         {countdown > 0 && (
+        {/* Countdown */}
+        {countdown > 0 && (
           <div className="text-center text-lg font-bold text-red-600 mt-4">
             Game starting in {countdown}...
           </div>
@@ -84,28 +94,27 @@ const LobbyPage = () => {
           >
             Leave Lobby
           </button>
-          
-            <button
-              onClick={handleReady}
-              disabled={lobby.players.length < 2 || player.ready}
-              className={`bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded transition-colors ${
-                (lobby.players.length < 2 || player.ready) ? 'opacity-50 cursor-not-allowed' : ''
+
+          <button
+            onClick={handleReady}
+            disabled={lobby.players.length < 2 || player.ready}
+            className={`bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded transition-colors ${(lobby.players.length < 2 || player.ready) ? 'opacity-50 cursor-not-allowed' : ''
               }`}
-            >
-              {!player.ready ? 'Ready' : 'Waiting for other players to ready...'}
-            </button>
+          >
+            {!player.ready ? 'Ready' : 'Waiting for other players to ready...'}
+          </button>
         </div>
-        {lobby.players.length < 2 &&(
+        {lobby.players.length < 2 && (
           <div className="mt-4 text-amber-600 text-sm text-center">
             Need at least 2 players to play. Share your lobby code with friends to play together
           </div>
         )}
       </div>
-      
+
       <div className="mt-6 text-gray-600 text-sm max-w-md text-center">
         <h3 className="font-bold mb-1">How to Play</h3>
-        <p>Use the four numbers and arithmetic operations (+, -, ×, ÷) to make exactly 24. 
-        Solve cards quickly to attack opponents and be the last mathematician standing!</p>
+        <p>Use the four numbers and arithmetic operations (+, -, ×, ÷) to make exactly 24.
+          Solve cards quickly to attack opponents and be the last mathematician standing!</p>
       </div>
     </div>
   );

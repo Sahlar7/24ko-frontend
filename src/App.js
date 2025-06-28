@@ -5,6 +5,7 @@ import GamePage from './containers/GamePage';
 import ResultsPage from './containers/ResultsPage';
 import { GameProvider } from './contexts/GameContext';
 import { useGame } from './contexts/GameContext';
+import {ToastContainer} from 'react-toastify';
 
 function Layout() {
   const {lobby} = useGame();
@@ -26,7 +27,8 @@ function Layout() {
 
 function App() {
   return(
-    <GameProvider>  
+    <GameProvider>
+      <ToastContainer />
       <Layout />
     </GameProvider>
   )
